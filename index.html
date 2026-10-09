@@ -678,7 +678,23 @@ const gameLinks = {
     document.getElementById("playButton").addEventListener("click", () => {
       const client = clientSelect.value;
       const version = versionSelect.value;
-      const url = gameLinks[client][version];
+      const gameTab = window.open("about:blank", "_blank");
+
+if (!gameTab) {
+  status.textContent = "Please allow pop-ups for this website.";
+  return;
+}
+
+gameTab.document.title = "Eaglercraft";
+
+const iframe = gameTab.document.createElement("iframe");
+iframe.src = url;
+iframe.style.width = "100%";
+iframe.style.height = "100%";
+iframe.style.border = "none";
+
+gameTab.document.body.style.margin = "0";
+gameTab.document.body.appendChild(iframe);
       if (url === null) {
   status.textContent =
     "Sorry, this client is not available for version " + version + ".";
