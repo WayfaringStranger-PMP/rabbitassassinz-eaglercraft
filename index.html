@@ -675,64 +675,63 @@ const gameLinks = {
     // 5. PLAY BUTTON
     // --------------------------------------------
 
-    document.getElementById("playButton").addEventListener("click", () => {
-      const client = clientSelect.value;
-      const version = versionSelect.value;
-      const gameTab = window.open("about:blank", "_blank");
 
-if (!gameTab) {
-  status.textContent = "Please allow pop-ups for this website.";
-  return;
-}
+document.getElementById("playButton").addEventListener("click", () => {
+  const client = clientSelect.value;
+  const version = versionSelect.value;
+  const url = gameLinks[client][version];
 
-gameTab.document.title = "Eaglercraft";
+  // 1. Check whether this combination is available
+  if (url === null) {
+    status.textContent =
+      "Sorry, this client is not available for version " + version + ".";
+    return;
+  }
 
-const iframe = gameTab.document.createElement("iframe");
-iframe.setAttribute("src", url);
-iframe.style.width = "100%";
-iframe.style.height = "100%";
-iframe.style.border = "none";
+  // 2. Check whether a link exists
+  if (!url || !url.trim()) {
+    status.textContent = text("missing");
+    return;
+  }
 
-gameTab.document.body.style.margin = "0";
-gameTab.document.body.appendChild(iframe);
-      if (url === null) {
-  status.textContent =
-    "Sorry, this client is not available for version " + version + ".";
-  return;
-}
+  // 3. Check that the link is a valid HTTPS URL
+  let parsedURL;
 
-      if (!url || !url.trim()) {
-        status.textContent = text("missing");
-        return;
-      }
+  try {
+    parsedURL = new URL(url);
+  } catch {
+    status.textContent = text("invalid");
+    return;
+  }
 
-      let parsedURL;
+  if (parsedURL.protocol !== "https:") {
+    status.textContent = text("invalid");
+    return;
+  }
 
-      try {
-        parsedURL = new URL(url);
-      } catch {
-        status.textContent = text("invalid");
-        return;
-      }
+  // 4. Open a blank tab only after all checks pass
+  const gameTab = window.open("about:blank", "_blank");
 
-      if (parsedURL.protocol !== "https:") {
-        status.textContent = text("invalid");
-        return;
-      }
+  if (!gameTab) {
+    status.textContent = "Please allow pop-ups for this website.";
+    return;
+  }
 
-      status.textContent = text("opening");
+  gameTab.document.title = "Eaglercraft";
+  gameTab.document.body.style.margin = "0";
+  gameTab.document.body.style.overflow = "hidden";
 
-      const gameWindow = window.open(
-        parsedURL.href,
-        "_blank",
-        "noopener,noreferrer"
-      );
+  const iframe = gameTab.document.createElement("iframe");
+  iframe.src = parsedURL.href;
+  iframe.style.width = "100%";
+  iframe.style.height = "100vh";
+  iframe.style.border = "none";
+  iframe.allow = "fullscreen";
 
-      if (!gameWindow) {
-        status.textContent = text("opening");
-      }
-    });
+  gameTab.document.body.appendChild(iframe);
 
+  status.textContent = text("opening");
+});
     // --------------------------------------------
     // 6. SETTINGS WINDOW
     // --------------------------------------------
