@@ -78,7 +78,7 @@
       height: 42px;
       background: var(--accent);
       border-radius: 10px;
-      color: white;
+      color: var(--accent-foreground, white);
       font-size: 23px;
     }
 
@@ -208,7 +208,7 @@
       border: 0;
       border-radius: 9px;
       background: var(--accent);
-      color: white;
+      color: var(--accent-foreground, white);
       font-weight: 700;
       font-size: 16px;
       transition: filter 0.2s, transform 0.2s;
@@ -773,16 +773,77 @@ document.getElementById("playButton").addEventListener("click", () => {
     // 8. CHANGE THE ACCENT COLOR
     // --------------------------------------------
 
-    function updateAccentColor(color) {
-      document.documentElement.style.setProperty("--accent", color);
-      document.querySelector('meta[name="theme-color"]')
-        .setAttribute("content", color);
+function updateAccentColor(color) {
+  const root = document.documentElement;
+
+  // Keep the exact color selected by the user
+  root.style.setProperty("--accent", color);
+
+  // Convert the selected hex color to a hue
+  const hex = color.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+
+  let hue = 0;
+
+  if (delta !== 0) {
+    if (max === r) {
+      hue = 60 * (((g - b) / delta) % 6);
+    } else if (max === g) {
+      hue = 60 * ((b - r) / delta + 2);
+    } else {
+      hue = 60 * ((r - g) / delta + 4);
     }
+  }
 
-    accentColor.addEventListener("input", () => {
-      updateAccentColor(accentColor.value);
-    });
+  hue = (hue + 360) % 360;
 
+  // Generate matching shades for the entire website
+  root.style.setProperty(
+    "--background", `hsl(${hue}, 38%, 7%)`
+  );
+  root.style.setProperty(
+    "--panel", `hsl(${hue}, 34%, 13%)`
+  );
+  root.style.setProperty(
+    "--panel-light", `hsl(${hue}, 32%, 19%)`
+  );
+  root.style.setProperty(
+    "--border", `hsl(${hue}, 30%, 29%)`
+  );
+  root.style.setProperty(
+    "--text", `hsl(${hue}, 20%, 96%)`
+  );
+  root.style.setProperty(
+    "--muted", `hsl(${hue}, 17%, 73%)`
+  );
+
+  // Choose readable text for accent-colored buttons
+  const luminance =
+    0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  root.style.setProperty(
+    "--accent-foreground",
+    luminance > 0.45 ? "#10131b" : "#ffffff"
+  );
+
+  // Update the browser's theme color
+  const themeMeta =
+    document.querySelector('meta[name="theme-color"]');
+
+  if (themeMeta) {
+    themeMeta.setAttribute("content", color);
+  }
+}
+
+accentColor.addEventListener("input", () => {
+  updateAccentColor(accentColor.value);
+});
     // --------------------------------------------
     // 9. REMEMBER SETTINGS ON THIS DEVICE
     // --------------------------------------------
