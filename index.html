@@ -515,24 +515,23 @@
     // Leave an entry empty until you have its correct URL.
     // A client may not support every version listed here.
 
-    const gameLinks = {
-      precision: {
-        "1.5.2": "",
-        "1.8.8": "",
-        "1.12.2": ""
-      },
-      resent: {
-        "1.5.2": "",
-        "1.8.8": "",
-        "1.12.2": ""
-      },
-      original: {
-        "1.5.2": "",
-        "1.8.8": "",
-        "1.12.2": ""
-      }
-    };
-
+const gameLinks = {
+  precision: {
+    "1.5.2": "",
+    "1.8.8": null,
+    "1.12.2": null
+  },
+  resent: {
+    "1.5.2": "",
+    "1.8.8": "",
+    "1.12.2": null
+  },
+  original: {
+    "1.5.2": "",
+    "1.8.8": "",
+    "1.12.2": ""
+  }
+};
     // --------------------------------------------
     // 2. LANGUAGE TEXT
     // --------------------------------------------
@@ -680,6 +679,11 @@
       const client = clientSelect.value;
       const version = versionSelect.value;
       const url = gameLinks[client][version];
+      if (url === null) {
+  status.textContent =
+    "Sorry, this client is not available for version " + version + ".";
+  return;
+}
 
       if (!url || !url.trim()) {
         status.textContent = text("missing");
