@@ -688,7 +688,7 @@ if (!gameTab) {
 gameTab.document.title = "Eaglercraft";
 
 const iframe = gameTab.document.createElement("iframe");
-iframe.src = url;
+iframe.setAttribute("src", url);
 iframe.style.width = "100%";
 iframe.style.height = "100%";
 iframe.style.border = "none";
