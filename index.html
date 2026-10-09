@@ -1,0 +1,819 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Eaglercraft Launcher</title>
+
+  <style>
+    :root {
+      --accent: #668cff;
+      --background: #0c111b;
+      --panel: #151d2b;
+      --panel-light: #1c2738;
+      --text: #f1f5f9;
+      --muted: #9ba9bc;
+      --border: #2b3749;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    button, select {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    .topbar {
+      min-height: 76px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 16px 7%;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      background: var(--accent);
+      border-radius: 10px;
+      color: white;
+      font-size: 23px;
+    }
+
+    .settings-button {
+      background: var(--panel-light);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 11px 15px;
+    }
+
+    .settings-button:hover {
+      border-color: var(--accent);
+    }
+
+    main {
+      width: min(100% - 32px, 850px);
+      margin: 0 auto;
+      padding: 65px 0 50px;
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 54px);
+      margin: 15px 0;
+      letter-spacing: -1.5px;
+    }
+
+    .intro p {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 550px;
+      margin: 0 auto;
+    }
+
+    .launcher {
+      padding: clamp(22px, 5vw, 38px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 18px 60px #00000020;
+    }
+
+    .section-heading {
+      font-size: 19px;
+      margin: 0 0 8px;
+    }
+
+    .section-description {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0 0 26px;
+    }
+
+    .field {
+      margin-bottom: 23px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      padding: 14px;
+      background: var(--background);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+    }
+
+    select:hover {
+      border-color: var(--accent);
+    }
+
+    .selection-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 16px;
+      margin: 28px 0 20px;
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    #summary {
+      font-weight: 700;
+    }
+
+    .version-badge {
+      color: var(--accent);
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 13px;
+    }
+
+    .play-button {
+      width: 100%;
+      padding: 16px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      transition: filter 0.2s, transform 0.2s;
+    }
+
+    .play-button:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+
+    .play-button:active {
+      transform: translateY(0);
+    }
+
+    #status {
+      min-height: 22px;
+      margin: 15px 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 25px;
+    }
+
+    .info-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .info-card .symbol {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .info-card p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px 16px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    /* Settings dialog */
+
+    dialog {
+      width: min(420px, calc(100% - 30px));
+      padding: 0;
+      color: var(--text);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    dialog::backdrop {
+      background: #000000a8;
+      backdrop-filter: blur(4px);
+    }
+
+    .settings-content {
+      padding: 25px;
+    }
+
+    .settings-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .settings-title h2 {
+      font-size: 21px;
+      margin: 0;
+    }
+
+    .close-button {
+      border: 1px solid var(--border);
+      background: var(--panel-light);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 7px 11px;
+    }
+
+    .settings-content .field {
+      margin-bottom: 22px;
+    }
+
+    .settings-content input[type="color"] {
+      display: block;
+      width: 100%;
+      height: 48px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      background: var(--background);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .reset-button {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 14px 18px;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      main {
+        padding-top: 42px;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">E</span>
+      <span>EAGLERCRAFT</span>
+    </div>
+
+    <button class="settings-button" id="openSettings"
+            type="button" aria-haspopup="dialog">
+      ⚙ <span data-i18n="settings">Settings</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="eyebrow" data-i18n="eyebrow">
+        YOUR GAMING EXPERIENCE
+      </div>
+
+      <h1 data-i18n="title">Choose Your Eaglercraft</h1>
+
+      <p data-i18n="subtitle">
+        Select your preferred client and game version.
+        Your next adventure starts here.
+      </p>
+    </section>
+
+    <section class="launcher">
+      <h2 class="section-heading" data-i18n="chooseHeading">
+        Game Launcher
+      </h2>
+
+      <p class="section-description" data-i18n="chooseDescription">
+        Choose a client and version below to continue.
+      </p>
+
+      <div class="field">
+        <label for="client" data-i18n="clientLabel">
+          1. Select a client
+        </label>
+
+        <select id="client">
+          <option value="precision">Precision Client</option>
+          <option value="resent">Resent Client</option>
+          <option value="original">Original Eaglercraft</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="version" data-i18n="versionLabel">
+          2. Select a version
+        </label>
+
+        <select id="version">
+          <option value="1.5.2">Minecraft 1.5.2</option>
+          <option value="1.8.8" selected>Minecraft 1.8.8</option>
+          <option value="1.12.2">Minecraft 1.12.2</option>
+        </select>
+      </div>
+
+      <div class="selection-summary">
+        <div>
+          <div class="summary-label" data-i18n="selected">
+            YOUR SELECTION
+          </div>
+          <div id="summary">Resent Client</div>
+        </div>
+
+        <div class="version-badge" id="versionBadge">
+          Version 1.8.8
+        </div>
+      </div>
+
+      <button class="play-button" id="playButton" type="button">
+        ▶ <span data-i18n="play">Play Eaglercraft</span>
+      </button>
+
+      <p id="status" role="status" aria-live="polite"
+         data-i18n="ready">
+        Select your client and version to get started.
+      </p>
+    </section>
+
+    <section class="info-grid">
+      <article class="info-card">
+        <div class="symbol">◈</div>
+        <h3 data-i18n="card1Title">Choose Your Client</h3>
+        <p data-i18n="card1Text">
+          Select the client that suits your preferred gameplay.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <div class="symbol">▦</div>
+        <h3 data-i18n="card2Title">Multiple Versions</h3>
+        <p data-i18n="card2Text">
+          Choose between three classic Minecraft versions.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <div class="symbol">⚙</div>
+        <h3 data-i18n="card3Title">Make It Yours</h3>
+        <p data-i18n="card3Text">
+          Customize the page language and accent color.
+        </p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p data-i18n="footer">
+      Independent fan project. Not affiliated with Mojang or the
+      Eaglercraft developers.
+    </p>
+  </footer>
+
+  <dialog id="settingsDialog">
+    <div class="settings-content">
+      <div class="settings-title">
+        <h2 data-i18n="settingsTitle">Page Settings</h2>
+        <button class="close-button" id="closeSettings"
+                type="button" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="field">
+        <label for="language" data-i18n="languageLabel">
+          Page language
+        </label>
+
+        <select id="language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="accentColor" data-i18n="colorLabel">
+          Main accent color
+        </label>
+
+        <input type="color" id="accentColor" value="#668cff">
+      </div>
+
+      <button class="reset-button" id="resetSettings"
+              type="button" data-i18n="reset">
+        Reset settings
+      </button>
+    </div>
+  </dialog>
+
+  <script>
+    // --------------------------------------------
+    // 1. GAME LINKS
+    // --------------------------------------------
+    // Add a valid, authorized game URL to each entry.
+    // Leave an entry empty until you have its correct URL.
+    // A client may not support every version listed here.
+
+    const gameLinks = {
+      precision: {
+        "1.5.2": "",
+        "1.8.8": "",
+        "1.12.2": ""
+      },
+      resent: {
+        "1.5.2": "",
+        "1.8.8": "",
+        "1.12.2": ""
+      },
+      original: {
+        "1.5.2": "",
+        "1.8.8": "",
+        "1.12.2": ""
+      }
+    };
+
+    // --------------------------------------------
+    // 2. LANGUAGE TEXT
+    // --------------------------------------------
+
+    const translations = {
+      en: {
+        settings: "Settings",
+        eyebrow: "YOUR GAMING EXPERIENCE",
+        title: "Choose Your Eaglercraft",
+        subtitle: "Select your preferred client and game version. Your next adventure starts here.",
+        chooseHeading: "Game Launcher",
+        chooseDescription: "Choose a client and version below to continue.",
+        clientLabel: "1. Select a client",
+        versionLabel: "2. Select a version",
+        selected: "YOUR SELECTION",
+        play: "Play Eaglercraft",
+        ready: "Select your client and version to get started.",
+        card1Title: "Choose Your Client",
+        card1Text: "Select the client that suits your preferred gameplay.",
+        card2Title: "Multiple Versions",
+        card2Text: "Choose between three classic Minecraft versions.",
+        card3Title: "Make It Yours",
+        card3Text: "Customize the page language and accent color.",
+        footer: "Independent fan project. Not affiliated with Mojang or the Eaglercraft developers.",
+        settingsTitle: "Page Settings",
+        languageLabel: "Page language",
+        colorLabel: "Main accent color",
+        reset: "Reset settings",
+        missing: "A game link has not been configured for this combination yet.",
+        opening: "Opening your selected game...",
+        invalid: "That game link is invalid. Please check the configuration.",
+        original: "Original Eaglercraft"
+      },
+
+      es: {
+        settings: "Configuración",
+        eyebrow: "TU EXPERIENCIA DE JUEGO",
+        title: "Elige tu Eaglercraft",
+        subtitle: "Selecciona tu cliente y versión preferidos. Tu próxima aventura comienza aquí.",
+        chooseHeading: "Lanzador de juegos",
+        chooseDescription: "Elige un cliente y una versión para continuar.",
+        clientLabel: "1. Selecciona un cliente",
+        versionLabel: "2. Selecciona una versión",
+        selected: "TU SELECCIÓN",
+        play: "Jugar Eaglercraft",
+        ready: "Selecciona un cliente y una versión para comenzar.",
+        card1Title: "Elige tu cliente",
+        card1Text: "Selecciona el cliente que prefieras.",
+        card2Title: "Varias versiones",
+        card2Text: "Elige entre tres versiones clásicas de Minecraft.",
+        card3Title: "Personalízalo",
+        card3Text: "Cambia el idioma y el color de la página.",
+        footer: "Proyecto de fans independiente. No afiliado con Mojang ni con los desarrolladores de Eaglercraft.",
+        settingsTitle: "Configuración de página",
+        languageLabel: "Idioma de la página",
+        colorLabel: "Color principal",
+        reset: "Restablecer configuración",
+        missing: "Todavía no se ha configurado un enlace para esta combinación.",
+        opening: "Abriendo el juego seleccionado...",
+        invalid: "El enlace no es válido. Revisa la configuración.",
+        original: "Eaglercraft original"
+      },
+
+      fr: {
+        settings: "Paramètres",
+        eyebrow: "VOTRE EXPÉRIENCE DE JEU",
+        title: "Choisissez votre Eaglercraft",
+        subtitle: "Choisissez votre client et votre version préférés. Votre prochaine aventure commence ici.",
+        chooseHeading: "Lanceur de jeu",
+        chooseDescription: "Choisissez un client et une version pour continuer.",
+        clientLabel: "1. Choisissez un client",
+        versionLabel: "2. Choisissez une version",
+        selected: "VOTRE SÉLECTION",
+        play: "Jouer à Eaglercraft",
+        ready: "Choisissez un client et une version pour commencer.",
+        card1Title: "Choisissez votre client",
+        card1Text: "Sélectionnez le client qui vous convient.",
+        card2Title: "Plusieurs versions",
+        card2Text: "Choisissez parmi trois versions classiques de Minecraft.",
+        card3Title: "Personnalisez",
+        card3Text: "Modifiez la langue et la couleur de la page.",
+        footer: "Projet de fans indépendant. Non affilié à Mojang ni aux développeurs d'Eaglercraft.",
+        settingsTitle: "Paramètres de la page",
+        languageLabel: "Langue de la page",
+        colorLabel: "Couleur principale",
+        reset: "Réinitialiser les paramètres",
+        missing: "Aucun lien de jeu n'est encore configuré pour cette combinaison.",
+        opening: "Ouverture du jeu sélectionné...",
+        invalid: "Ce lien n'est pas valide. Vérifiez la configuration.",
+        original: "Eaglercraft original"
+      }
+    };
+
+    // --------------------------------------------
+    // 3. PAGE ELEMENTS
+    // --------------------------------------------
+
+    const clientSelect = document.getElementById("client");
+    const versionSelect = document.getElementById("version");
+    const summary = document.getElementById("summary");
+    const versionBadge = document.getElementById("versionBadge");
+    const status = document.getElementById("status");
+
+    const settingsDialog = document.getElementById("settingsDialog");
+    const languageSelect = document.getElementById("language");
+    const accentColor = document.getElementById("accentColor");
+
+    let currentLanguage = "en";
+
+    const clientNames = {
+      precision: "Precision Client",
+      resent: "Resent Client",
+      original: "Original Eaglercraft"
+    };
+
+    function text(key) {
+      return translations[currentLanguage][key];
+    }
+
+    // --------------------------------------------
+    // 4. UPDATE THE SELECTED GAME
+    // --------------------------------------------
+
+    function updateSelection() {
+      const client = clientSelect.value;
+      const version = versionSelect.value;
+
+      summary.textContent =
+        client === "original"
+          ? text("original")
+          : clientNames[client];
+
+      versionBadge.textContent = "Version " + version;
+      status.textContent = text("ready");
+    }
+
+    clientSelect.addEventListener("change", updateSelection);
+    versionSelect.addEventListener("change", updateSelection);
+
+    // --------------------------------------------
+    // 5. PLAY BUTTON
+    // --------------------------------------------
+
+    document.getElementById("playButton").addEventListener("click", () => {
+      const client = clientSelect.value;
+      const version = versionSelect.value;
+      const url = gameLinks[client][version];
+
+      if (!url || !url.trim()) {
+        status.textContent = text("missing");
+        return;
+      }
+
+      let parsedURL;
+
+      try {
+        parsedURL = new URL(url);
+      } catch {
+        status.textContent = text("invalid");
+        return;
+      }
+
+      if (parsedURL.protocol !== "https:") {
+        status.textContent = text("invalid");
+        return;
+      }
+
+      status.textContent = text("opening");
+
+      const gameWindow = window.open(
+        parsedURL.href,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+      if (!gameWindow) {
+        status.textContent = text("opening");
+      }
+    });
+
+    // --------------------------------------------
+    // 6. SETTINGS WINDOW
+    // --------------------------------------------
+
+    document.getElementById("openSettings").addEventListener("click", () => {
+      settingsDialog.showModal();
+    });
+
+    document.getElementById("closeSettings").addEventListener("click", () => {
+      settingsDialog.close();
+    });
+
+    // Close when clicking the dark area outside the dialog.
+    settingsDialog.addEventListener("click", (event) => {
+      if (event.target === settingsDialog) {
+        settingsDialog.close();
+      }
+    });
+
+    // --------------------------------------------
+    // 7. CHANGE THE PAGE LANGUAGE
+    // --------------------------------------------
+
+    function updateLanguage() {
+      currentLanguage = languageSelect.value;
+      document.documentElement.lang = currentLanguage;
+
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        const key = element.dataset.i18n;
+        element.textContent = text(key);
+      });
+
+      updateSelection();
+    }
+
+    languageSelect.addEventListener("change", updateLanguage);
+
+    // --------------------------------------------
+    // 8. CHANGE THE ACCENT COLOR
+    // --------------------------------------------
+
+    function updateAccentColor(color) {
+      document.documentElement.style.setProperty("--accent", color);
+      document.querySelector('meta[name="theme-color"]')
+        .setAttribute("content", color);
+    }
+
+    accentColor.addEventListener("input", () => {
+      updateAccentColor(accentColor.value);
+    });
+
+    // --------------------------------------------
+    // 9. REMEMBER SETTINGS ON THIS DEVICE
+    // --------------------------------------------
+
+    try {
+      const savedLanguage = localStorage.getItem("eagler-language");
+      const savedColor = localStorage.getItem("eagler-accent");
+
+      if (savedLanguage && translations[savedLanguage]) {
+        languageSelect.value = savedLanguage;
+        currentLanguage = savedLanguage;
+      }
+
+      if (savedColor && /^#[0-9a-f]{6}$/i.test(savedColor)) {
+        accentColor.value = savedColor;
+        updateAccentColor(savedColor);
+      }
+
+      languageSelect.addEventListener("change", () => {
+        localStorage.setItem("eagler-language", languageSelect.value);
+      });
+
+      accentColor.addEventListener("change", () => {
+        localStorage.setItem("eagler-accent", accentColor.value);
+      });
+    } catch (error) {
+      // The page still works if browser storage is unavailable.
+    }
+
+    // --------------------------------------------
+    // 10. RESET SETTINGS
+    // --------------------------------------------
+
+    document.getElementById("resetSettings").addEventListener("click", () => {
+      languageSelect.value = "en";
+      accentColor.value = "#668cff";
+
+      try {
+        localStorage.removeItem("eagler-language");
+        localStorage.removeItem("eagler-accent");
+      } catch (error) {
+        // Storage is optional.
+      }
+
+      updateAccentColor("#668cff");
+      updateLanguage();
+    });
+
+    // Initialize the page.
+    updateLanguage();
+  </script>
+</body>
+</html>
